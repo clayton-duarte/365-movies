@@ -1,16 +1,20 @@
 import React, { FunctionComponent } from "react";
 import { AppProps } from "next/app";
+import Head from "next/head";
 
 const MyApp: FunctionComponent<AppProps> = ({ Component, pageProps }) => {
   return (
     <>
+      <Head>
+        <title>Movies 365</title>
+      </Head>
+
       <main>
         <Component {...pageProps} />
       </main>
 
       <style jsx>{`
         main {
-          padding: 1rem;
           display: grid;
           gap: 1rem;
         }
@@ -18,12 +22,14 @@ const MyApp: FunctionComponent<AppProps> = ({ Component, pageProps }) => {
 
       <style jsx global>
         {`
+          @import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
+
           html,
           body,
           #__next {
-            font-family: BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
-              Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+            font-family: "Montserrat", sans-serif;
             font-size: 16px;
+            color: #333;
             padding: 0;
             margin: 0;
           }
