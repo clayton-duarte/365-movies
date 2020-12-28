@@ -6,7 +6,7 @@ const MyApp: FunctionComponent<AppProps> = ({ Component, pageProps }) => {
   return (
     <>
       <Head>
-        <title>Movies 365</title>
+        <title>365 Movies</title>
       </Head>
 
       <main>
