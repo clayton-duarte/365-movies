@@ -14,6 +14,7 @@ import {
   AiOutlineEyeInvisible,
   AiOutlineCheckCircle,
   AiOutlineDelete,
+  AiOutlineClose,
   AiOutlineEye,
 } from "react-icons/ai";
 
@@ -84,6 +85,10 @@ const HomePage: FunctionComponent<HomePageProps> = ({ movies }) => {
     router.reload();
   };
 
+  const handleClickCancel = () => {
+    setSelected(undefined);
+  };
+
   const sortByDate = (
     { sawAt: prevSawAt }: Movie,
     { sawAt: currSawAt }: Movie
@@ -98,17 +103,6 @@ const HomePage: FunctionComponent<HomePageProps> = ({ movies }) => {
         <h1>365 Movies</h1>
       </header>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          onChange={handleChange}
-          placeholder="Movie Name"
-          className="card"
-          name="name"
-        />
-        <button className="card" disabled={!canSubmit}>
-          <AiOutlineCheckCircle />
-        </button>
-      </form>
       <ul>
         {movies.sort(sortByDate).map(({ id, name, sawAt }, index) => {
           const isSelected = index === selected;
@@ -137,6 +131,9 @@ const HomePage: FunctionComponent<HomePageProps> = ({ movies }) => {
                   <button className="card" onClick={handleClickDelete(index)}>
                     <AiOutlineDelete />
                   </button>
+                  <button className="card" onClick={handleClickCancel}>
+                    <AiOutlineClose />
+                  </button>
                 </div>
               </section>
             </li>
@@ -144,16 +141,30 @@ const HomePage: FunctionComponent<HomePageProps> = ({ movies }) => {
         })}
       </ul>
 
+      <footer>
+        <form onSubmit={handleSubmit}>
+          <input
+            onChange={handleChange}
+            placeholder="Include new movie"
+            className="card"
+            name="name"
+          />
+          <button className="card" disabled={!canSubmit}>
+            <AiOutlineCheckCircle />
+          </button>
+        </form>
+      </footer>
+
       <style jsx>{`
         form {
           grid-template-columns: 1fr auto;
           justify-content: space-between;
           display: grid;
-          padding: 1rem;
           gap: 1rem;
         }
 
         input {
+          -webkit-appearance: none; // fixes box-shadow on ios
           padding: 0.5rem 1rem;
           font-size: 1rem;
           border: none;
@@ -179,6 +190,14 @@ const HomePage: FunctionComponent<HomePageProps> = ({ movies }) => {
           position: sticky;
           padding: 1rem;
           top: 0;
+        }
+
+        footer {
+          box-shadow: 0 0 0.5rem #0003;
+          background: white;
+          position: sticky;
+          padding: 1rem;
+          bottom: 0;
         }
 
         h1 {
@@ -227,11 +246,11 @@ const HomePage: FunctionComponent<HomePageProps> = ({ movies }) => {
         }
 
         div.row.even {
+          grid-template-columns: 1fr 1fr 1fr;
           margin-left: 1rem;
         }
 
         div.row.active.even {
-          grid-template-columns: 1fr 1fr;
           margin-left: -1rem;
         }
 
