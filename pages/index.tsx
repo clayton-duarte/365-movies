@@ -10,10 +10,16 @@ import { Client, query } from "faunadb";
 import { useRouter } from "next/router";
 import { DateTime } from "luxon";
 import Axios from "axios";
+import {
+  AiOutlineEyeInvisible,
+  AiOutlineCheckCircle,
+  AiOutlineDelete,
+  AiOutlineEye,
+} from "react-icons/ai";
 
 interface Movie {
-  id: string;
   name: string;
+  id: string;
   sawAt?: string;
 }
 
@@ -28,7 +34,7 @@ const HomePage: FunctionComponent<HomePageProps> = ({ movies }) => {
 
   const canSubmit = Boolean(formData.name);
 
-  const handleClick = (index: number) => (e: MouseEvent): void => {
+  const handleClickSelect = (index: number) => (e: MouseEvent): void => {
     e.preventDefault();
     setSelected(index);
   };
@@ -43,6 +49,39 @@ const HomePage: FunctionComponent<HomePageProps> = ({ movies }) => {
       await Axios.post("/api/createMovie", formData);
       router.reload();
     }
+  };
+
+  const handleClickMark = (index: number) => async (
+    e: MouseEvent
+  ): Promise<void> => {
+    e.preventDefault();
+    await Axios.post("/api/updateMovie", {
+      ...movies[index],
+      sawAt: new Date().toISOString(),
+    });
+    router.reload();
+  };
+
+  const handleClickUnMark = (index: number) => async (
+    e: MouseEvent
+  ): Promise<void> => {
+    e.preventDefault();
+    await Axios.post("/api/updateMovie", {
+      ...movies[index],
+      sawAt: null,
+    });
+    router.reload();
+  };
+
+  const handleClickDelete = (index: number) => async (
+    e: MouseEvent
+  ): Promise<void> => {
+    e.preventDefault();
+    await Axios.post("/api/deleteMovie", {
+      ...movies[index],
+      sawAt: new Date().toISOString(),
+    });
+    router.reload();
   };
 
   const sortByDate = (
@@ -60,21 +99,49 @@ const HomePage: FunctionComponent<HomePageProps> = ({ movies }) => {
       </header>
 
       <form onSubmit={handleSubmit}>
-        <input name="name" onChange={handleChange} placeholder="Movie Name" />
-        <button disabled={!canSubmit}>ok</button>
+        <input
+          onChange={handleChange}
+          placeholder="Movie Name"
+          className="card"
+          name="name"
+        />
+        <button className="card" disabled={!canSubmit}>
+          <AiOutlineCheckCircle />
+        </button>
       </form>
       <ul>
-        {movies.sort(sortByDate).map(({ id, name, sawAt }, index) => (
-          <li key={id} onClick={handleClick(index)}>
-            <span className={sawAt ? "strike" : ""}>
-              {name}
-              {index === selected && "*"}
-            </span>
-            <span>
-              {sawAt && DateTime.fromISO(sawAt).toFormat("dd LLL yyyy")}
-            </span>
-          </li>
-        ))}
+        {movies.sort(sortByDate).map(({ id, name, sawAt }, index) => {
+          const isSelected = index === selected;
+
+          return (
+            <li key={id}>
+              <section className="cutter">
+                <div
+                  className={`card row ${isSelected && "active"}`}
+                  onClick={handleClickSelect(index)}
+                >
+                  <span className={sawAt ? "strike" : ""}>{name}</span>
+                  <span>
+                    {sawAt && DateTime.fromISO(sawAt).toFormat("dd LLL yyyy")}
+                  </span>
+                </div>
+                <div className={`row even ${isSelected && "active"}`}>
+                  <button
+                    className="card"
+                    onClick={
+                      sawAt ? handleClickUnMark(index) : handleClickMark(index)
+                    }
+                  >
+                    {sawAt ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+                  </button>
+                  <button className="card" onClick={handleClickDelete(index)}>
+                    <AiOutlineDelete />
+                  </button>
+                </div>
+              </section>
+            </li>
+          );
+        })}
       </ul>
 
       <style jsx>{`
@@ -87,25 +154,28 @@ const HomePage: FunctionComponent<HomePageProps> = ({ movies }) => {
         }
 
         input {
-          box-shadow: 0 0 0.5rem #0003;
-          border-radius: 0.5rem;
           padding: 0.5rem 1rem;
           font-size: 1rem;
           border: none;
         }
 
         button {
-          box-shadow: 0 0 0.5rem #0003;
           text-transform: uppercase;
-          border-radius: 0.5rem;
-          padding: 0.5rem 1rem;
+          justify-content: center;
+          align-items: center;
           background: white;
           font-weight: bold;
-          border: none;
+          font-size: 1.5rem;
+          display: grid;
+        }
+
+        button.card {
+          padding: 0.25rem;
         }
 
         header {
           box-shadow: 0 0 0.5rem #0003;
+          background: white;
           position: sticky;
           padding: 1rem;
           top: 0;
@@ -118,19 +188,55 @@ const HomePage: FunctionComponent<HomePageProps> = ({ movies }) => {
         ul {
           list-style: none;
           display: grid;
-          padding: 0 1rem;
+          padding: 0;
           margin: 0;
-          gap: 1rem;
         }
 
         li {
-          grid-template-columns: auto auto;
-          justify-content: space-between;
+          padding: 0;
+        }
+
+        section.cutter {
+          grid-template-columns: 1fr 1fr;
+          padding: 0.5rem 1rem;
+          align-items: center;
+          overflow: hidden;
+          display: grid;
+          width: 100vw;
+          gap: 1rem;
+        }
+
+        .card {
           box-shadow: 0 0 0.5rem #0003;
           border-radius: 0.5rem;
           padding: 0.5rem 1rem;
+          border: none;
+        }
+
+        input.card {
+          box-shadow: inset 0 0 0.5rem #0003;
+        }
+
+        div.row {
+          grid-template-columns: auto auto;
+          justify-content: space-between;
+          width: calc(100vw - 2rem);
+          transition: 0.3s ease;
           display: grid;
           gap: 1rem;
+        }
+
+        div.row.even {
+          margin-left: 1rem;
+        }
+
+        div.row.active.even {
+          grid-template-columns: 1fr 1fr;
+          margin-left: -1rem;
+        }
+
+        div.row.active {
+          margin-left: calc(-100vw + -1rem);
         }
 
         span {
