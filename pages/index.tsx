@@ -264,6 +264,9 @@ const HomePage: FunctionComponent<HomePageProps> = ({ movies }) => {
 
         .strike {
           text-decoration: line-through;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          overflow: hidden;
         }
       `}</style>
     </>
